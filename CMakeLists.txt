@@ -14,6 +14,8 @@ endif()
 option(BUILD_SHARED "Build shared library" ON)
 option(BUILD_STATIC "Build static library" ON)
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+
 if(${BUILD_CONTAINED_PYTHON}) 
   #if make a mostly statically linked python module, use static boost
    set(BUILD_STATIC ON)
@@ -34,7 +36,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
 #dependencies
-find_package(Python3 COMPONENTS Interpreter Development)
 find_package(CUDA REQUIRED)
 find_package(Boost REQUIRED COMPONENTS regex unit_test_framework program_options system filesystem iostreams)
 find_package(OpenBabel3 REQUIRED)
