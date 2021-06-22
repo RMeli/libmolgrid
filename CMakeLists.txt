@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required (VERSION 3.18)
 project(LibMolGrid LANGUAGES C CXX CUDA)
 
 #version number
@@ -57,15 +57,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     set(CMAKE_CXX_FLAGS_PROFILE " -fprofile-arcs -ftest-coverage")
 endif()
 
-#compile for all major architetures >=35
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Werror cross-execution-space-call,deprecated-declarations \
- -gencode arch=compute_35,code=sm_35  \
- -gencode arch=compute_50,code=sm_50 \
- -gencode arch=compute_60,code=sm_60 \
- -gencode arch=compute_70,code=sm_70 \
- ")
-if ("${CUDA_VERSION}" VERSION_GREATER "9.2")
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -gencode arch=compute_75,code=sm_75 ")
+if(CUDA_VERSION_MAJOR LESS 11)
+#compile for all major architectures >= 35
+ set(CMAKE_CUDA_ARCHITECTURES 35 50 60 70 75)
+else()
+ set(CMAKE_CUDA_ARCHITECTURES 60 70 75)
 endif()
 
 set(CMAKE_CUDA_FLAGS_RELEASE "-O3 -g -lineinfo")

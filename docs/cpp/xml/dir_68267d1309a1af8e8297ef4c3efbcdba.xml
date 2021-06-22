@@ -8,6 +8,7 @@
     <innerfile refid="coordinateset_8cpp">coordinateset.cpp</innerfile>
     <innerfile refid="coordinateset_8cu">coordinateset.cu</innerfile>
     <innerfile refid="example_8cpp">example.cpp</innerfile>
+    <innerfile refid="example__dataset_8cpp">example_dataset.cpp</innerfile>
     <innerfile refid="example__extractor_8cpp">example_extractor.cpp</innerfile>
     <innerfile refid="example__provider_8cpp">example_provider.cpp</innerfile>
     <innerfile refid="exampleref__providers_8cpp">exampleref_providers.cpp</innerfile>
@@ -21,6 +22,6 @@
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/jocelynsunseri/git/libmolgrid/src/"/>
+    <location file="/home/dkoes/git/libmolgrid/src/"/>
   </compounddef>
 </doxygen>

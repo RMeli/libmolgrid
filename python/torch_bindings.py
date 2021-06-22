@@ -148,4 +148,75 @@ class Coords2Grid(torch.nn.Module):
     
     def extra_repr(self):
         return 'resolution {:.2f}, dimension {}, center {:.3f},{:.3f},{:.3f}'.format(
-                self.gmaker.get_resolution(), self.gmaker.get_dimension(), self.center[0], self.center[1], self.center[2])        
+                self.gmaker.get_resolution(), self.gmaker.get_dimension(), self.center[0], self.center[1], self.center[2])
+        
+                           
+class MolDataset(torch.utils.data.Dataset):
+    '''A pytorch mappable dataset for molgrid training files.'''
+    def __init__(self, *args, **kwargs):
+        '''Initialize mappable MolGridDataset.  
+        :param input(s): File name(s) of training example files 
+        :param typers: A tuple of AtomTypers to use
+        :type typers: tuple
+        :param cache_structs: retain coordinates in memory for faster training
+        :param add_hydrogens: protonate molecules read using openbabel
+        :param duplicate_first: clone the first coordinate set to be paired with each of the remaining (receptor-ligand pairs)
+        :param make_vector_types: convert index types into one-hot encoded vector types
+        :param data_root: prefix for data files
+        :param recmolcache: precalculated molcache2 file for receptor (first molecule); if doesn't exist, will look in data _root
+        :param ligmolcache: precalculated molcache2 file for ligand; if doesn't exist, will look in data_root
+        '''
+
+        if 'typers' in kwargs:
+            typers = kwargs['typers']
+            del kwargs['typers']
+            self.examples = mg.ExampleDataset(*typers,**kwargs)
+            self.typers = typers
+        else:
+            self.examples = mg.ExampleDataset(**kwargs)
+            self.typers = None
+        self.types_files = list(args)
+        self.examples.populate(self.types_files)
+            
+        self.num_labels = self.examples.num_labels()
+
+        
+    def __len__(self):
+        return len(self.examples)
+    
+    def __getitem__(self, idx):
+        ex = self.examples[idx]
+        center = torch.tensor([i for i in ex.coord_sets[-1].center()])
+        coordinates = ex.merge_coordinates()
+        if coordinates.has_vector_types() and coordinates.size() > 0:
+            atomtypes = torch.tensor(coordinates.type_vector.tonumpy(),dtype=torch.long).type('torch.FloatTensor')
+        else:
+            atomtypes = torch.tensor(coordinates.type_index.tonumpy(),dtype=torch.long).type('torch.FloatTensor')
+        coords = torch.tensor(coordinates.coords.tonumpy())
+        radii = torch.tensor(coordinates.radii.tonumpy())
+        labels = [ex.labels[lab] for lab in range(self.num_labels)]
+        return center, coords, atomtypes, radii, labels
+    
+    def __getstate__(self):
+        settings = self.examples.settings()
+        keyword_dict = {sett: getattr(settings, sett) for sett in dir(settings) if not sett.startswith('__')}
+        if self.typers is not None: ## This will fail if self.typers is not none, need a way to pickle AtomTypers
+            raise NotImplementedError('MolDataset does not support pickling when not using the default Gnina atom typers, this uses %s'.format(str(self.typers)))
+            keyword_dict['typers'] = self.typers
+        return keyword_dict, self.types_files
+
+    def __setstate__(self,state):
+        kwargs=state[0]
+        
+        if 'typers' in kwargs:
+            typers = kwargs['typers']
+            del kwargs['typers']
+            self.examples = mg.ExampleDataset(*typers, **kwargs)
+            self.typers = typers
+        else:
+            self.examples = mg.ExampleDataset(**kwargs)
+            self.typers = None
+        self.types_files = list(state[1])
+        self.examples.populate(self.types_files)
+
+        self.num_labels = self.examples.num_labels()
