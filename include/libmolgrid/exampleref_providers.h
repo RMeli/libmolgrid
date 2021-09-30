@@ -316,7 +316,7 @@ void ReceptorStratifiedExampleRefProvider<BalancedExampleRefProvider, 2>::setup(
  affinities are binned by absolute value according to molgriddataparameters
  */
 template<class Provider>
-class ValueStratifiedExampleRefProfider: public ExampleRefProvider
+class ValueStratifiedExampleRefProvider: public ExampleRefProvider
 {
   std::vector<Provider> examples;
   size_t currenti = 0;//position in array
@@ -336,8 +336,8 @@ class ValueStratifiedExampleRefProfider: public ExampleRefProvider
     return pos;
   }
 public:
-  ValueStratifiedExampleRefProfider() {}
-  ValueStratifiedExampleRefProfider(const ExampleProviderSettings& parm):
+  ValueStratifiedExampleRefProvider() {}
+  ValueStratifiedExampleRefProvider(const ExampleProviderSettings& parm):
     ExampleRefProvider(parm), currenti(0)
   {
     max = parm.stratify_max;

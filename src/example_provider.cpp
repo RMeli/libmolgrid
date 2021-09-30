@@ -114,12 +114,12 @@ std::shared_ptr<ExampleRefProvider> ExampleProvider::createProvider(
         if (grouped)
           return make_shared
               < GroupedExampleRefProvider<
-                  ValueStratifiedExampleRefProfider<
+                  ValueStratifiedExampleRefProvider<
                       ReceptorStratifiedExampleRefProvider<
                           BalancedExampleRefProvider, 2> > > > (settings);
         else
           return make_shared
-              < ValueStratifiedExampleRefProfider<
+              < ValueStratifiedExampleRefProvider<
                   ReceptorStratifiedExampleRefProvider<
                       BalancedExampleRefProvider, 2> > > (settings);
       }
@@ -128,12 +128,12 @@ std::shared_ptr<ExampleRefProvider> ExampleProvider::createProvider(
         if (grouped)
           return make_shared
               < GroupedExampleRefProvider<
-                  ValueStratifiedExampleRefProfider<
+                  ValueStratifiedExampleRefProvider<
                       ReceptorStratifiedExampleRefProvider<
                           UniformExampleRefProvider> > > > (settings);
         else
           return make_shared
-              < ValueStratifiedExampleRefProfider<
+              < ValueStratifiedExampleRefProvider<
                   ReceptorStratifiedExampleRefProvider<UniformExampleRefProvider> >
               > (settings);
       }
@@ -145,11 +145,11 @@ std::shared_ptr<ExampleRefProvider> ExampleProvider::createProvider(
         if (grouped)
           return make_shared
               < GroupedExampleRefProvider<
-                  ValueStratifiedExampleRefProfider<BalancedExampleRefProvider> >
+                  ValueStratifiedExampleRefProvider<BalancedExampleRefProvider> >
               > (settings);
         else
           return make_shared
-              < ValueStratifiedExampleRefProfider<BalancedExampleRefProvider>
+              < ValueStratifiedExampleRefProvider<BalancedExampleRefProvider>
               > (settings);
       }
       else //sample 1 from each receptor
@@ -157,11 +157,11 @@ std::shared_ptr<ExampleRefProvider> ExampleProvider::createProvider(
         if (grouped)
           return make_shared
               < GroupedExampleRefProvider<
-                  ValueStratifiedExampleRefProfider<UniformExampleRefProvider> >
+                  ValueStratifiedExampleRefProvider<UniformExampleRefProvider> >
               > (settings);
         else
           return make_shared
-              < ValueStratifiedExampleRefProfider<UniformExampleRefProvider>
+              < ValueStratifiedExampleRefProvider<UniformExampleRefProvider>
               > (settings);
       }
     }
