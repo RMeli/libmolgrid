@@ -11,6 +11,7 @@
 #include "libmolgrid/example_provider.h"
 #include "libmolgrid/example_dataset.h"
 #include "libmolgrid/grid_maker.h"
+#include "libmolgrid/grid_interpolater.h"
 #include "libmolgrid/grid_io.h"
 
 using namespace boost::python;
@@ -398,6 +399,8 @@ BOOST_PYTHON_MODULE(molgrid)
       "Set if generated grids should be on GPU by default.");
   def("tofloatptr", +[](long val) { return Pointer<float>((float*)val);}, "Return integer as float *");
   def("todoubleptr", +[](long val) { return Pointer<double>((double*)val);}, "Return integer as double *");
+  def("set_gpu_device", +[](int device)->void {LMG_CUDA_CHECK(cudaSetDevice(device));}, "Set current GPU device.");
+  def("get_gpu_device", +[]()->int {int device = 0; LMG_CUDA_CHECK(cudaGetDevice(&device)); return device;}, "Get current GPU device.");
 
   //type converters
   py_pair<int, float>();
@@ -815,6 +818,18 @@ MAKE_ALL_GRIDS()
       .def("forward", +[](GridMaker& self, float3 grid_center, const Grid<float, 2, true>& coords,
               const Grid<float, 2, true>& type_vector, const Grid<float, 1, true>& radii,
               Grid<float, 4, true> g){ self.forward(grid_center, coords, type_vector, radii, g); }, "@Docstring_GridMaker_forward_9@")
+      .def("forward", +[](GridMaker& self, const Grid<float, 2, false>& centers, const Grid<float, 3, false>& coords,
+              const Grid<float, 2, false>& types, const Grid<float, 2, false>& radii,
+              Grid<float, 5, false> g){ self.forward<float, 2, false>(centers, coords, types, radii, g); }, "@Docstring_GridMaker_forward_10@")
+      .def("forward", +[](GridMaker& self, const Grid<float, 2, true>& centers, const Grid<float, 3, true>& coords,
+              const Grid<float, 2, true>& types, const Grid<float, 2, true>& radii,
+              Grid<float, 5, true> g){ self.forward<float, 2, true>(centers, coords, types, radii, g); }, "@Docstring_GridMaker_forward_10@")
+      .def("forward", +[](GridMaker& self, const Grid<float, 2, false>& centers, const Grid<float, 3, false>& coords,
+              const Grid<float, 3, false>& types, const Grid<float, 2, false>& radii,
+              Grid<float, 5, false> g){ self.forward<float, 3, false>(centers, coords, types, radii, g); }, "@Docstring_GridMaker_forward_10@")
+      .def("forward", +[](GridMaker& self, const Grid<float, 2, true>& centers, const Grid<float, 3, true>& coords,
+              const Grid<float, 3, true>& types, const Grid<float, 2, true>& radii,
+              Grid<float, 5, true> g){ self.forward<float, 3, true>(centers, coords, types, radii, g); }, "@Docstring_GridMaker_forward_10@")
       .def("backward", +[](GridMaker& self, float3 grid_center, const CoordinateSet& in, const Grid<float, 4, false>& diff,
           Grid<float, 2, false> atomic_gradients, Grid<float, 2, false> type_gradients){
           self.backward(grid_center, in, diff, atomic_gradients, type_gradients);}, "@Docstring_GridMaker_backward_1@")
@@ -866,6 +881,30 @@ MAKE_ALL_GRIDS()
                self.backward_gradients(grid_center, in, diff, atom_gradients, type_gradients,
                    diffdiff, atom_diffdiff, type_diffdiff); }, "@Docstring_GridMaker_backward_gradients_4@");
 
+  class_<GridInterpolater>("GridInterpolater", "@Docstring_GridInterpolater@",
+      init<float, float, float, float>((arg("in_resolution")=0.5, arg("in_dimension")=23.5,  arg("out_resolution")=0.5, arg("out_dimension")=23.5)))
+      .def("get_in_resolution", &GridInterpolater::get_in_resolution)
+      .def("set_in_resolution", &GridInterpolater::set_in_resolution)
+      .def("get_out_resolution", &GridInterpolater::get_out_resolution)
+      .def("set_out_resolution", &GridInterpolater::set_out_resolution)
+      .def("get_in_dimension", &GridInterpolater::get_in_dimension)
+      .def("set_in_dimension", &GridInterpolater::set_in_dimension)
+      .def("get_out_dimension", &GridInterpolater::get_out_dimension)
+      .def("set_out_dimension", &GridInterpolater::set_out_dimension)
+      .def("forward", +[](GridInterpolater& self, const Grid<float, 4, false>& in, const Transform& transform, Grid<float, 4, false>& out){
+            self.forward(in, transform, out);}, "@Docstring_GridInterpolater_forward_1@")
+      .def("forward", +[](GridInterpolater& self, const Grid<float, 4, true>& in, const Transform& transform, Grid<float, 4, true>& out){
+            self.forward(in, transform, out);}, "@Docstring_GridInterpolater_forward_2@")
+      .def("forward", +[](GridInterpolater& self, const Grid<float, 4, false>& in, const Transform& transform, Grid<float, 4, false>& out){
+            self.forward(in, transform, out);}, "@Docstring_GridInterpolater_forward_3@")
+      .def("forward", +[](GridInterpolater& self, const Grid<float, 4, true>& in, const Transform& transform, Grid<float, 4, true>& out){
+            self.forward(in, transform, out);}, "@Docstring_GridInterpolater_forward_4@")
+      .def("forward", +[](GridInterpolater& self, float3 in_center, const Grid<float, 4, false>& in, const Transform& transform,
+                                                  float3 out_center, Grid<float, 4, false>& out){
+            self.forward(in_center, in, transform, out_center, out);}, "@Docstring_GridInterpolater_forward_5@")
+      .def("forward", +[](GridInterpolater& self, float3 in_center, const Grid<float, 4, true>& in, const Transform& transform,
+                                                  float3 out_center, Grid<float, 4, true>& out){
+            self.forward(in_center, in, transform, out_center, out);}, "@Docstring_GridInterpolater_forward_6@");
 
 
   class_<CartesianGrid<MGrid3f> >("CartesianGrid", "@Docstring_CartesianGrid@", init<MGrid3f, float3, float>())
